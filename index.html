@@ -7,7 +7,7 @@
 <script>/* Anti-clickjacking: refuse to run inside someone else's frame */
 if(window.top!==window.self){try{window.top.location=window.self.location}catch(e){}document.documentElement.innerHTML="";throw new Error("framed")}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#7b5cff"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg">
-<title>Numeria Quest — Kids Edition (3D Icons)</title>
+<title>Numeria Quest — Kids Edition (3D Icons) v47</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
 <style>
@@ -3006,11 +3006,34 @@ function memoryMatch(back){back=back||showGames;setTheme("mini");const open=mgOp
     else{bad();lock=true;setTimeout(()=>{hide(a);hide(i);lock=false},750)}};
   let alive=true;window._mgStop=()=>{alive=false};$("#mgx").onclick=()=>{closeOvl();back()}}
 function bonusGame(r){closeOvl();(Math.random()<.5?bubblePop:memoryMatch)(()=>showLevels(r))}
+/* v44: Fractions + Pamilihan mini-games */
+const numOpts=a=>{const s=new Set([a]);for(const d of shuf([1,-1,5,-5,10,-10,2,-2]))if(s.size<4&&a+d>=0)s.add(a+d);return shuf([...s]).map(String)};
+const fracQ=()=>{const t=rnd(0,2);
+  if(t===0){const d=[2,3,4,5,6,8][rnd(0,5)],n=rnd(1,d-1),s=new Set([n+"/"+d]);while(s.size<4){const dd=[2,3,4,5,6,8][rnd(0,5)];s.add(rnd(1,dd-1)+"/"+dd)}
+    return{t:T("What fraction is colored? 🍕","Anong bahagi ang may kulay? 🍕"),v:"🟧".repeat(n)+"⬜".repeat(d-n),a:n+"/"+d,o:shuf([...s])}}
+  if(t===1){const d=[2,3,4,5][rnd(0,3)],k=rnd(2,5),tot=d*k;
+    return{t:T(`Share ${tot} pandesal equally in ${d} parts. How many in 1/${d}?`,`Hatiin ang ${tot} pandesal sa ${d} pantay na bahagi. Ilan ang 1/${d}?`),v:"🥖",a:k,o:numOpts(k)}}
+  let d1=rnd(2,8),d2=rnd(2,8);while(d1===d2)d2=rnd(2,8);
+  return{t:T("Which is BIGGER?","Alin ang MAS MALAKI?"),v:"🍕",a:"1/"+Math.min(d1,d2),o:shuf(["1/"+d1,"1/"+d2])}};
+const moneyQ=()=>{const t=rnd(0,2);
+  if(t===0){const a=rnd(5,25),b=rnd(5,25);return{t:T(`You buy pandesal ₱${a} and milk ₱${b}. How much in all?`,`Bumili ka ng pandesal na ₱${a} at gatas na ₱${b}. Magkano lahat?`),v:"🥖🥛",a:a+b,o:numOpts(a+b)}}
+  if(t===1){const pay=[50,100][rnd(0,1)],c=rnd(2,pay/5-1)*5;return{t:T(`You pay ₱${pay} for a ₱${c} snack. How much is your change?`,`Nagbayad ka ng ₱${pay} sa ₱${c} na meryenda. Magkano ang sukli?`),v:"🪙",a:pay-c,o:numOpts(pay-c)}}
+  const f=rnd(10,15),n=rnd(2,5);return{t:T(`Jeepney fare is ₱${f}. How much for ${n} passengers?`,`₱${f} ang pamasahe sa jeep. Magkano para sa ${n} pasahero?`),v:"🚌",a:f*n,o:numOpts(f*n)}};
+function quizGame(kind,icon,title,mk,back){setTheme("mini");let i=0,score=0,alive=true;const N=8;
+  ovl(`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px"><button class="pill btn alt" id="mgx" style="min-height:0;padding:4px 12px">✕</button><b style="font-size:1.2rem">${icon} ${title}</b><b id="mgs" style="font-size:1.3rem">⭐ 0</b></div><div id="mgb" style="padding:14px;max-width:480px;width:100%;margin:auto"></div>`);
+  window._mgStop=()=>{alive=false};$("#mgx").onclick=()=>{alive=false;closeOvl();back()};
+  const next=()=>{if(!alive)return;if(i>=N){alive=false;return mgEnd(kind,score,3+score,()=>quizGame(kind,icon,title,mk,back),back,T("Score","Puntos"))}
+    const q=mk();$("#mgb").innerHTML=`<div style="background:#fff6e8;border-radius:20px;padding:16px;text-align:center;color:#3b2a5e"><div style="font:800 1.25rem Fredoka,system-ui">${q.t}</div><div style="font-size:2rem;margin:8px 0;letter-spacing:2px">${q.v}</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">${q.o.map(x=>`<button class="ans" style="font:800 1.5rem Fredoka,system-ui;padding:12px;border-radius:16px;border:3px solid #fde68a;background:#fff;color:#3b2a5e" data-v="${x}">${x}</button>`).join("")}</div></div>`;
+    const bs=[...document.querySelectorAll("#mgb .ans")];bs.forEach(b=>b.onclick=()=>{if(b.dataset.d)return;bs.forEach(x=>x.dataset.d=1);
+      if(b.dataset.v===String(q.a)){good();score++;b.style.background="#69db7c"}else{bad();b.style.background="#ff8787";bs.find(x=>x.dataset.v===String(q.a)).style.background="#b2f2bb"}
+      $("#mgs").textContent="⭐ "+score;i++;setTimeout(next,800)})};next()}
 function showGames(){hub();const b=S.mgBest||{};
   ui(`<div class="hud"><span class="pill">🎮 ${T("Mini-games","Mini-games")}</span>${coinPill()}${vo()}</div>`,
   `<div class="sheet bigm"><p style="margin:0 0 4px;text-align:center">${T("Play to earn 🪙 coins for pet food and cool hero styles!","Maglaro para sa 🪙 coins pang-pakain sa pet at pang-bihis sa hero!")}</p>
   <button class="node" style="min-height:64px" onclick="bubblePop(showGames)"><span class="icon-bubble">🎈</span><span><b>${T("Bubble Pop","Bubble Pop")}</b><br>${T("Pop the right answer! Best: ","Pumutok ng tamang sagot! Best: ")}${b.bubble||0}</span></button>
   <button class="node" style="min-height:64px" onclick="memoryMatch(showGames)"><span class="icon-bubble">🧠</span><span><b>${T("Memory Match","Memory Match")}</b><br>${T("Match sums with answers! Best moves: ","Itambal ang tanong sa sagot! Best na galaw: ")}${b.memory||"-"}</span></button>
+  <button class="node" style="min-height:64px" onclick="quizGame('frac','🍕',T('Pizza Time','Pizza Time'),fracQ,showGames)"><span class="icon-bubble">🍕</span><span><b>${T("Pizza Time (Fractions)","Pizza Time (Fractions)")}</b><br>${T("Learn fractions! Best: ","Matuto ng fractions! Best: ")}${b.frac||0}</span></button>
+  <button class="node" style="min-height:64px" onclick="quizGame('money','🪙',T('Pamilihan','Pamilihan'),moneyQ,showGames)"><span class="icon-bubble">🪙</span><span><b>Pamilihan</b><br>${T("Money, change & jeepney fare! Best: ","Pera, sukli at pamasahe! Best: ")}${b.money||0}</span></button>
   <p style="text-align:center;margin:10px 0 0"><button class="btn alt" style="padding:8px 16px" onclick="showTitle()">${T("← Menu","← Menu")}</button></p></div>`)}
 
 /* ========== ADVENTURE JOURNEY ========== */
@@ -3349,17 +3372,23 @@ function showPlayerDetail(i){if(!rbStaff())return showTitle();hub();const rows=t
    SQL (run once in Supabase):
    create table numeria_players(name text primary key, data jsonb, updated_at bigint);
    alter table numeria_players enable row level security;
-   create policy "open" on numeria_players for all using (true) with check (true);          */
+   -- NOTE: the anon key is PUBLIC (it is inside this file). Anyone who has it can read these rows, so
+   -- the game never uploads parent e-mail / phone / PIN hashes (psec). Do not add personal data to the table.
+   create policy "read"   on numeria_players for select using (true);
+   create policy "add"    on numeria_players for insert with check (octet_length(data::text) < 200000);
+   create policy "change" on numeria_players for update using (true) with check (octet_length(data::text) < 200000);
+   -- no DELETE policy on purpose: nobody can wipe the table with the public key.
+   -- For real per-player privacy use Supabase Auth (a login per player/parent) and policies on auth.uid(). */
 const CLOUD={url:"",key:"",table:"numeria_players"};
 const cloudOn=()=>!!(CLOUD.url&&CLOUD.key);
 const cloudH=()=>({apikey:CLOUD.key,Authorization:"Bearer "+CLOUD.key,"Content-Type":"application/json"});
 const cloudU=q=>CLOUD.url.replace(/\/$/,"")+"/rest/v1/"+CLOUD.table+(q||"");
 let _cpT=0;
-function cloudPut(name,data){if(!cloudOn()||!name||isAdminName(name)||rbAcct(name))return;try{fetch(cloudU("?on_conflict=name"),{method:"POST",headers:Object.assign(cloudH(),{Prefer:"resolution=merge-duplicates"}),body:JSON.stringify({name:name.toLowerCase(),data:Object.assign({},data,{user:name}),updated_at:data.ts||Date.now()})}).catch(()=>{})}catch(e){}}
+function cloudPut(name,data){if(!cloudOn()||!name||isAdminName(name)||rbAcct(name))return;try{fetch(cloudU("?on_conflict=name"),{method:"POST",headers:Object.assign(cloudH(),{Prefer:"resolution=merge-duplicates"}),body:JSON.stringify({name:name.toLowerCase(),data:nqCloudOut(Object.assign({},data,{user:name})),updated_at:data.ts||Date.now()})}).catch(()=>{})}catch(e){}}
 function cloudPush(){if(!cloudOn()||!S.user||isAdminName(S.user)||rbAcct(S.user))return;clearTimeout(_cpT);_cpT=setTimeout(()=>cloudPut(S.user,S),1500)}
 const _prog=d=>(d&&((d.xp||0)+(d.questionsAnswered||0)))||0;
-async function cloudPullMine(n){if(!cloudOn()||isAdminName(n))return;try{const r=await fetch(cloudU("?name=eq."+encodeURIComponent(n.toLowerCase())+"&select=data"),{headers:cloudH()});if(!r.ok)return;const row=(await r.json())[0];if(row&&row.data&&_prog(row.data)>_prog(S)&&S.user===n){S=Object.assign(mkS(),row.data);S.user=n;norm();save();showTitle()}}catch(e){}}
-async function cloudPullAll(){if(!cloudOn())return false;try{const r=await fetch(cloudU("?select=name,data,updated_at"),{headers:cloudH()});if(!r.ok)return false;const rows=await r.json(),list=plist().slice();let ch=false;rows.forEach(x=>{if(!x||!x.name||!x.data||isAdminName(x.name)||rbAcct(x.name))return;const nm=x.data.user||x.name,k=ukey(nm),loc=LS.get(k);let lp=0;try{lp=_prog(JSON.parse(loc||"{}"))}catch(e){}if(_prog(x.data)>lp){LS.set(k,JSON.stringify(x.data));ch=true}if(!list.some(z=>z.toLowerCase()===nm.toLowerCase())){list.push(nm);ch=true}});if(ch)LS.set("numeria_profiles",JSON.stringify(list));return ch}catch(e){return false}}
+async function cloudPullMine(n){if(!cloudOn()||isAdminName(n))return;try{const r=await fetch(cloudU("?name=eq."+encodeURIComponent(n.toLowerCase())+"&select=data"),{headers:cloudH()});if(!r.ok)return;const row=nqCloudClean((await r.json())[0]);if(row&&row.data&&_prog(row.data)>_prog(S)&&S.user===n){{const _ps=S.psec,_pk=S.psecSkip;S=Object.assign(mkS(),row.data);if(_ps)S.psec=_ps;if(_pk)S.psecSkip=_pk}S.user=n;norm();save();showTitle()}}catch(e){}}
+async function cloudPullAll(){if(!cloudOn())return false;try{const r=await fetch(cloudU("?select=name,data,updated_at"),{headers:cloudH()});if(!r.ok)return false;const rows=(await r.json()).map(nqCloudClean).filter(Boolean),list=plist().slice();let ch=false;rows.forEach(x=>{if(!x||!x.name||!x.data||isAdminName(x.name)||rbAcct(x.name))return;const nm=x.data.user||x.name,k=ukey(nm),loc=LS.get(k);let lp=0;try{lp=_prog(JSON.parse(loc||"{}"))}catch(e){}if(_prog(x.data)>lp){try{const _o=JSON.parse(loc||"{}");if(_o.psec)x.data.psec=_o.psec;if(_o.psecSkip)x.data.psecSkip=_o.psecSkip}catch(e){}LS.set(k,JSON.stringify(x.data));ch=true}if(!list.some(z=>z.toLowerCase()===nm.toLowerCase())){list.push(nm);ch=true}});if(ch)LS.set("numeria_profiles",JSON.stringify(list));return ch}catch(e){return false}}
 function cloudBtn(){if(!rbCan("manage","system"))return;if(!cloudOn()){alert(T("Cloud sync is OFF. Open the game file, find CLOUD={url:\"\",key:\"\"} and paste your Supabase URL and anon key (setup SQL is in the comment above it). Then every device shares the same players.","Naka-OFF ang cloud sync. Hanapin sa code ang CLOUD={url:\"\",key:\"\"} at ilagay ang Supabase URL at key (nasa komento sa itaas ang SQL). Pagkatapos, magkakapareho na ang players sa lahat ng device."));return}
   cloudPullAll().then(ch=>{toast(ch?"☁️ "+T("Synced!","Na-sync!"):"☁️ "+T("Already up to date","Updated na"),1800);showPlayers()})}
 const _sp0=showPlayers;showPlayers=function(){_sp0();if(cloudOn()&&Date.now()-(window._cpAt||0)>30000){window._cpAt=Date.now();cloudPullAll().then(ch=>{if(ch&&document.querySelector(".tsd-pg"))_sp0()})}};
@@ -4845,6 +4874,218 @@ window.nqLink={ok:id=>dec(id,true),no:id=>dec(id,false),drop:drop,
   send(){if(!meKid())return;const i=$("#lkp"),v=cleanName(i?i.value:"");if(v.length<2)return;const r=add(v,S.user,"child");
     toast(r==="ok"?"⏳ "+TT("Sent. Your parent must sign in and approve.","Naipadala. Kailangang mag-login at pumayag ang magulang."):r==="linked"?TT("Already linked.","Naka-link na."):r==="dup"?TT("Already waiting for approval.","Naghihintay na ng approval."):TT("Parent account not found.","Walang parent account na iyon."),3200);showSettings()}};
 }catch(e){console.warn("Parent link failed to start",e)}})();
+</script>
+<script id="nq-backup">
+/* ===== v45 Safer backup / restore =====
+   - Players back up ONLY their own profile; staff (admin / manage:system) back up everything.
+   - Restore MERGES: newer progress on this device is kept, only newer/missing players are restored.
+   - Security & account data is restored only by staff.
+   - A safety copy is made first, so the last restore can be undone from Others.
+   - Nothing is silently copied to the clipboard any more (backups can hold PIN/phone/e-mail hashes). */
+(function(){"use strict";try{
+const TT=(a,b)=>{try{return T(a,b)}catch(e){return a}},SNAP="nqpre_snapshot",P="numeria_",U="numeria_u_";
+const sys=()=>{try{return!!(isAdmin()||rbCan("manage","system"))}catch(e){return false}};
+const prog=d=>(d&&((d.xp||0)+(d.questionsAnswered||0)))||0;
+const lc=x=>String(x||"").toLowerCase();
+const allKeys=()=>{const o={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf(P)===0)o[k]=localStorage.getItem(k)}return o};
+const addProfile=nm=>{if(!nm)return;const l=plist();if(!l.some(z=>lc(z)===lc(nm))){l.push(nm);LS.set("numeria_profiles",JSON.stringify(l))}};
+const flush=()=>{try{save()}catch(e){}};
+
+function exportP(){try{flush();const all=sys(),data={};
+  if(all)Object.assign(data,allKeys());
+  else{const k=S.user?ukey(S.user):null,v=k&&LS.get(k);
+    if(!v)return toast(TT("Sign in first to make a backup.","Mag-login muna para makagawa ng backup."),3000);data[k]=v}
+  const d={app:"numeria-quest",v:3,scope:all?"all":"me",at:new Date().toISOString(),data},
+    blob=new Blob([JSON.stringify(d)],{type:"application/json"}),a=document.createElement("a"),
+    who=all?"all":lc(S.user).replace(/[^a-z0-9_-]/g,"");
+  a.href=URL.createObjectURL(blob);a.download="numeria-backup-"+who+"-"+d.at.slice(0,10)+".json";
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+  toast(TT("Backup saved! Keep the file safe.","Na-save ang backup! Itago ang file."),3500)}
+  catch(e){toast(TT("Could not make a backup.","Hindi nakagawa ng backup."),3500)}}
+
+function importP(){const inp=document.createElement("input");inp.type="file";inp.accept=".json,application/json";
+  inp.onchange=()=>{const f=inp.files&&inp.files[0];if(!f)return;
+    const bad=()=>toast(TT("That is not a valid Numeria backup file.","Hindi ito wastong Numeria backup file."),3500);
+    if(f.size>5e6)return bad();
+    const r=new FileReader();r.onload=()=>{let d;
+      try{d=JSON.parse(r.result);if(!d||d.app!=="numeria-quest"||!d.data||typeof d.data!=="object")throw 0}catch(e){return bad()}
+      const keys=Object.keys(d.data).filter(k=>k.indexOf(P)===0&&typeof d.data[k]==="string"),n=keys.filter(k=>k.indexOf(U)===0).length;
+      if(!confirm(TT("Restore "+n+" player(s) from this backup? Newer progress on this device is kept, and you can undo this from Others.","I-restore ang "+n+" player? Mananatili ang mas bagong progress sa device na ito, at pwede mong i-undo sa Iba pa.")))return;
+      flush();
+      try{localStorage.setItem(SNAP,JSON.stringify({at:Date.now(),data:allKeys()}))}
+      catch(e){return toast(TT("Not enough space for a safety copy. Nothing was changed.","Kulang ang space para sa safety copy. Walang binago."),4500)}
+      let ok=0,kept=0,skip=0;const staff=sys();
+      keys.forEach(k=>{const v=d.data[k];
+        if(k.indexOf(U)===0){let nd,od=null;
+          try{nd=JSON.parse(v);if(!nd||typeof nd!=="object"||Array.isArray(nd))throw 0;nd=nqClean(nd);if(!nqOkName(nd.user)||ukey(nd.user)!==k)throw 0}catch(e){skip++;return}
+          try{const c=LS.get(k);od=c?JSON.parse(c):null}catch(e){}
+          if(od&&(prog(od)>prog(nd)||(prog(od)===prog(nd)&&(od.ts||0)>=(nd.ts||0)))){kept++;return}
+          LS.set(k,JSON.stringify(nd));addProfile(nd.user);ok++}
+        else if(k==="numeria_profiles"){if(!staff)return;try{JSON.parse(v).forEach(nm=>{if(nqOkName(nm))addProfile(nm)})}catch(e){skip++}}
+        else if(k==="numeria_last"){/* never change who is signed in */}
+        else if(staff){let sv=null;try{sv=JSON.stringify(nqClean(JSON.parse(v)))}catch(e){if(/^[A-Za-z0-9_.:\-]{1,256}$/.test(v))sv=v}if(sv==null)skip++;else LS.set(k,sv)}else skip++});
+      alert(TT("Restored: "+ok+" · kept newer on this device: "+kept+(skip?" · skipped: "+skip:""),"Na-restore: "+ok+" · pinanatili ang mas bago: "+kept+(skip?" · nilaktawan: "+skip:"")));
+      setTimeout(()=>location.reload(),300)};
+    r.readAsText(f)};inp.click()}
+
+function undoP(){let s=null;try{s=JSON.parse(LS.get(SNAP))}catch(e){}
+  if(!s||!s.data)return toast(TT("Nothing to undo.","Walang i-uundo."),2500);
+  if(!confirm(TT("Undo the last restore (made "+new Date(s.at).toLocaleString()+")?","I-undo ang huling restore ("+new Date(s.at).toLocaleString()+")?")))return;
+  Object.keys(allKeys()).forEach(k=>LS.del(k));Object.keys(s.data).forEach(k=>LS.set(k,s.data[k]));LS.del(SNAP);
+  toast(TT("Restore undone. Reloading…","Na-undo na. Nire-reload…"),2000);setTimeout(()=>location.reload(),900)}
+
+window.exportProgress=exportP;window.importProgress=importP;window.undoRestore=undoP;
+const so=window.showOthers;
+if(so)window.showOthers=function(){const r=so.apply(this,arguments);
+  try{if(LS.get(SNAP)){const row=document.querySelector('#bot .sheet div[style*="flex-wrap"]');
+    if(row){const b=document.createElement("button");b.className="btn alt";b.style.margin="2px";b.textContent="↩️ "+TT("Undo restore","I-undo ang restore");b.onclick=undoP;row.appendChild(b)}}}catch(e){}
+  return r};
+}catch(e){console.warn("Backup patch failed to start",e)}})();
+</script>
+<script id="nq-hardening">
+/* ===== v46 Hardening =====
+   1. nqClean      : sanitizes any JSON that comes from OUTSIDE (backup file, cloud) - strips HTML/quote chars
+                     (stored-XSS) and the keys __proto__/constructor/prototype (prototype pollution).
+   2. nqCloudOut   : privacy filter - the parent's Gmail / phone / PIN & password hashes (psec) never leave the device.
+   3. nqCloudClean : validates every cloud row before it is trusted.
+   4. Admin default password (admin123) must be replaced at first admin sign-in; stronger password rules. */
+(function(){"use strict";
+const TT=(a,b)=>{try{return T(a,b)}catch(e){return a}};
+const BAD_KEY=/^(__proto__|constructor|prototype)$/,PRIVATE=["psec","psecSkip"];
+function clean(v,d){d=d||0;if(d>8)return null;
+  if(typeof v==="string")return v.replace(/[<>"'`\\\u0000-\u001f]/g,"").slice(0,600);
+  if(typeof v==="number")return isFinite(v)?v:0;
+  if(typeof v==="boolean"||v===null)return v;
+  if(Array.isArray(v))return v.slice(0,2000).map(x=>clean(x,d+1));
+  if(v&&typeof v==="object"){const o={};Object.keys(v).slice(0,500).forEach(k=>{if(BAD_KEY.test(k))return;o[String(k).replace(/[<>"'`\\]/g,"").slice(0,80)]=clean(v[k],d+1)});return o}
+  return null}
+const okName=n=>{try{return typeof n==="string"&&n.length>0&&cleanName(n)===n}catch(e){return false}};
+window.nqClean=clean;window.nqOkName=okName;
+window.nqCloudOut=data=>{const o=Object.assign({},data);PRIVATE.forEach(k=>delete o[k]);return o};
+window.nqCloudClean=row=>{if(!row||typeof row!=="object")return row;
+  if(!okName(row.name))return null;
+  if(!row.data||typeof row.data!=="object")return null;
+  const d=clean(row.data);PRIVATE.forEach(k=>delete d[k]);
+  if(d.user!=null&&!okName(d.user))return null;
+  return{name:row.name,data:d,updated_at:row.updated_at}};
+
+/* ---- password rules ---- */
+const COMMON=["admin123","admin1234","password","password1","12345678","123456789","qwerty123","iloveyou","letmein1","welcome1","abc12345","11111111"];
+function pwProblem(p){p=String(p==null?"":p);const l=p.toLowerCase();
+  if(p.length<8)return TT("Use at least 8 characters.","Gumamit ng hindi bababa sa 8 na letra.");
+  if(COMMON.indexOf(l)>=0||/^(.)\1+$/.test(p)||l.indexOf("admin")>=0||l.indexOf("numeria")>=0)return TT("Too easy to guess. Avoid common words, 'admin' and 'numeria'.","Masyadong madaling hulaan. Iwasan ang karaniwang salita, 'admin' at 'numeria'.");
+  if(!(/[a-z]/i.test(p)&&/[0-9\W_]/.test(p)))return TT("Mix letters with numbers or symbols.","Haluan ng numero o simbolo ang mga letra.");
+  return""}
+window.nqPwProblem=pwProblem;
+function askNew(forced){
+  for(let t=0;t<5;t++){
+    const a=prompt(TT((forced?"The default admin password is not safe. Set a NEW one.\n":"")+"New admin password (min 8, letters + numbers/symbols):",(forced?"Hindi ligtas ang default na admin password. Maglagay ng BAGO.\n":"")+"Bagong admin password (min 8, letra + numero/simbolo):"));
+    if(a==null)return false;
+    const pr=pwProblem(a);if(pr){alert(pr);continue}
+    const b=prompt(TT("Type it again:","Ulitin:"));if(b==null)return false;
+    if(a!==b){alert(TT("Passwords did not match.","Hindi magkapareho."));continue}
+    localStorage.setItem("numeria_admin_h",hashPw("numeria|"+a));
+    try{rbLog("tbl_accounts","EDIT","admin password")}catch(e){}
+    toast("🔑 "+TT("Password changed!","Napalitan na!"),2000);return true}
+  return false}
+window.nqAskAdminPw=askNew;
+try{
+window.adminChangePw=function(){if(!rbCan("manage","system"))return;if(askNew(false)){try{showPlayers()}catch(e){}}};
+const al=window._afterLogin;
+if(al)window._afterLogin=function(n){const r=al.apply(this,arguments);
+  try{if(isAdmin()&&usingDefaultPw())setTimeout(()=>{
+    if(!(isAdmin()&&usingDefaultPw()))return;
+    if(!askNew(true)){try{save()}catch(e){}window._admin=false;window._staff=null;window._sess=null;try{showLogin()}catch(e){}}},400)}catch(e){}
+  return r};
+}catch(e){console.warn("Hardening failed to start",e)}
+})();
+</script>
+<script id="nq-tycoon">
+/* ===== v47 Tindahan Tycoon (sari-sari store) =====
+   Serve customers: add up the bill (+ / ×), then give the right change (−). Earn ₱ to upgrade the store.
+   Real 🪙 coins are capped at 10 per day (same as the other mini-games), so the economy stays fair.
+   Every answer also counts in the player's stats (histQ) so Smart Practice and the teacher dashboard see it. */
+(function(){"use strict";try{
+const TT=(a,b)=>{try{return T(a,b)}catch(e){return a}};
+const ITEMS=[["🥖","pandesal","pandesal",3,0],["🍬","candy","kendi",1,0],["🥚","egg","itlog",8,0],
+  ["🍪","biscuit","biskwit",12,1],["🥛","milk","gatas",15,1],
+  ["🍜","noodles","pansit canton",14,2],["🥤","soft drink","softdrink",20,2],
+  ["🧼","soap","sabon",25,3],["🫙","cooking oil","mantika",45,3]];
+const COST={sign:[100,250,500],shelf:[120,300,650],helper:[100,250,500]};
+const CUST=["👵","🧒","👨‍🌾","👩‍🍳","🧑‍🎓","👮","👩‍⚕️","🧓","👧","🧔"],BILLS=[10,20,50,100,200,500,1000];
+const clampN=(v,d,mx)=>Number.isFinite(v)?Math.max(0,Math.min(mx,Math.floor(v))):d;
+function tyc(){const t=S.tyc=(S.tyc&&typeof S.tyc==="object"&&!Array.isArray(S.tyc))?S.tyc:{};
+  t.cash=clampN(t.cash,20,99999);t.day=Math.max(1,clampN(t.day,1,9999));t.served=clampN(t.served,0,999999);t.best=clampN(t.best,0,99999);
+  const u=t.up=(t.up&&typeof t.up==="object")?t.up:{};["sign","shelf","helper"].forEach(k=>{u[k]=clampN(u[k],0,3)});return t}
+const nm=it=>TT(it[1],it[2]);
+function mkOrder(){const u=tyc().up,pool=ITEMS.filter(x=>x[4]<=u.shelf),nl=u.shelf<2?rnd(1,2):rnd(2,3),mq=u.shelf<1?3:u.shelf<3?4:5;
+  const lines=shuf(pool.slice()).slice(0,Math.min(nl,pool.length)).map(it=>({it,q:rnd(1,mq)}));
+  const total=lines.reduce((s,l)=>s+l.q*l.it[3],0),pay=BILLS.find(b=>b>total);
+  return{lines,total,pay,change:pay-total,mul:lines.some(l=>l.q>1),cust:CUST[rnd(0,CUST.length-1)]}}
+const hdr=(left,mid,right)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;gap:8px">${left}<b style="font-size:1.15rem">${mid}</b><b style="font-size:1.15rem">${right}</b></div>`;
+const xbtn='<button class="pill btn alt" id="tcx" style="min-height:0;padding:4px 12px">✕</button>';
+const card="background:#fff6e8;color:#3b2a5e;border-radius:20px;padding:14px;";
+const optStyle="font:800 1.5rem Fredoka,system-ui;padding:12px;min-height:56px;border-radius:16px;border:3px solid #fde68a;background:#fff;color:#3b2a5e";
+
+function tycoonGame(back){back=back||window.showGames;try{setTheme("mini")}catch(e){}
+  const leave=()=>{closeOvl();back()};
+
+  function store(){const t=tyc(),u=t.up,N=5+u.sign;
+    const up=(k,ic,name,desc)=>{const l=u[k],mx=l>=3,c=COST[k][l],can=!mx&&t.cash>=c;
+      return `<div style="${card}margin:8px 0;display:flex;align-items:center;gap:10px"><div style="font-size:2rem">${ic}</div><div style="flex:1;text-align:left"><b>${name}</b> <small>Lv ${l}/3</small><br><small>${desc}</small></div>${mx?"<b>✅ MAX</b>":`<button class="btn ${can?"green":"alt"}" data-buy="${k}" ${can?"":"disabled"} style="min-height:0;padding:6px 12px;font-size:1rem">₱${c}</button>`}</div>`};
+    ovl(hdr(xbtn,"🏪 Tindahan Tycoon","💰 ₱"+t.cash)+`<div style="padding:8px 14px 18px;max-width:480px;width:100%;margin:auto;overflow:auto;text-align:center">
+      <div style="font-size:3.2rem">${"🏪"}${u.sign>0?"🪧":""}${u.shelf>0?"🧺":""}${u.helper>0?"🧑‍🍳":""}</div>
+      <p style="margin:4px 0">${TT("Day","Araw")} <b>${t.day}</b> · ${N} ${TT("customers","suki")} · 🏆 ₱${t.best}</p>
+      <p style="margin:4px 0;font-size:.95rem">${TT("Add up the bill, then give the right change!","Kuwentahin ang bayarin, tapos ibigay ang tamang sukli!")}</p>
+      <button class="btn green" id="tco" style="width:100%;margin:8px 0">▶️ ${TT("Open the store","Buksan ang tindahan")}</button>
+      ${up("sign","🪧",TT("Signboard","Karatula"),TT("+1 customer per day","+1 suki bawat araw"))}
+      ${up("shelf","🧺",TT("Shelf","Estante"),TT("More items, bigger numbers","Mas maraming paninda, mas malalaking numero"))}
+      ${up("helper","🧑‍🍳",TT("Helper","Katulong"),TT("Tip for every perfect customer","Tip sa bawat perpektong suki"))}</div>`);
+    $("#tcx").onclick=leave;$("#tco").onclick=()=>day();
+    document.querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>{const k=b.dataset.buy,tt=tyc();if(!COST[k])return;const l=tt.up[k],c=COST[k][l];
+      if(l>=3||c==null||tt.cash<c)return;tt.cash-=c;tt.up[k]=l+1;save();good();store()})}
+
+  function day(){const t=tyc(),N=5+t.up.sign,tip=[0,2,4,6][t.up.helper];let i=0,rev=0,tips=0,perfect=0,alive=true;
+    window._mgStop=()=>{alive=false};
+    const top=()=>hdr(xbtn,"👤 "+i+"/"+N,"₱"+(rev+tips));
+    const bind=()=>{$("#tcx").onclick=()=>{alive=false;leave()}};
+    function ask(o,q,ans,op,extra,done){let wrong=false;
+      ovl(top()+`<div style="padding:10px 14px;max-width:480px;width:100%;margin:auto;overflow:auto"><div style="${card}text-align:center">
+        <div style="font-size:3rem">${o.cust}💬</div>
+        <div style="text-align:left;font:700 1.1rem Nunito,system-ui;margin:6px auto;max-width:380px">${o.lines.map(l=>`${l.q} × ${l.it[0]} ${nm(l.it)} · ₱${l.it[3]} ${TT("each","bawat isa")}`).join("<br>")}${extra?"<br>"+extra:""}</div>
+        <div style="font:800 1.3rem Fredoka,system-ui;margin:8px 0">${q}</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">${numOpts(ans).map(x=>`<button class="ans" style="${optStyle}" data-v="${x}">₱${x}</button>`).join("")}</div></div></div>`);
+      bind();const bs=[...document.querySelectorAll("#mg .ans")];
+      bs.forEach(b=>b.onclick=()=>{if(!alive||b.dataset.d)return;const ok=b.dataset.v===String(ans);
+        S.questionsAnswered=(S.questionsAnswered||0)+1;try{histQ(ok,op)}catch(e){}
+        if(ok){S.correctAnswers=(S.correctAnswers||0)+1;if(!wrong)S.xp=(S.xp||0)+2;good();b.style.background="#69db7c";bs.forEach(x=>x.dataset.d=1);setTimeout(()=>{if(alive)done(!wrong)},650)}
+        else{wrong=true;bad();b.dataset.d=1;b.style.background="#ff8787";b.style.opacity=".6"}})}
+    function next(){if(!alive)return;if(i>=N)return finish();i++;const o=mkOrder();
+      ask(o,TT("How much is the total?","Magkano lahat?"),o.total,o.mul?"×":"+","",ok1=>{
+        ask(o,TT(`Customer pays ₱${o.pay}. How much is the change?`,`Nagbayad ng ₱${o.pay}. Magkano ang sukli?`),o.change,"-",`<b>${TT("Total","Kabuuan")}: ₱${o.total}</b> · 💵 ₱${o.pay}`,ok2=>{
+          const perf=ok1&&ok2,g=perf?o.total:Math.floor(o.total/2);rev+=g;if(perf){perfect++;tips+=tip}
+          try{floatText(innerWidth*.5,innerHeight*.35,"+₱"+(g+(perf?tip:0)),"gold")}catch(e){}next()})})}
+    function finish(){alive=false;const g=rev+tips,tt=tyc(),nb=g>tt.best;
+      tt.cash=Math.min(99999,tt.cash+g);tt.day=Math.min(9999,tt.day+1);tt.served=Math.min(999999,tt.served+N);tt.best=Math.max(tt.best,g);
+      const coins=Math.min(10,perfect+(perfect===N?3:0));S.mgBest=S.mgBest||{};S.mgBest.tycoon=Math.max(S.mgBest.tycoon||0,g);
+      addCoins(coins);save();try{yay()}catch(e){}
+      ovl(`<div style="margin:auto;text-align:center;padding:20px;max-width:420px"><div style="font-size:4rem">🏪</div>
+        <h2 style="font:800 2rem Fredoka,system-ui;margin:6px 0">${TT("Store closed!","Sarado na ang tindahan!")}</h2>
+        <p style="font-size:1.25rem;margin:6px">👤 ${N} · ⭐ ${perfect}/${N} ${TT("perfect","perpekto")}</p>
+        <p style="font-size:1.25rem;margin:6px">💰 ₱${rev}${tips?" + ₱"+tips+" "+TT("tips","tip"):""}${nb?" 🏆 "+TT("New best!","Bagong best!"):""}</p>
+        <p style="font-size:1.25rem;margin:6px">🪙 +${coins} · ${TT("Savings","Ipon")}: ₱${tt.cash}</p>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap"><button class="btn" id="tcs">🏪 ${TT("Store","Tindahan")}</button><button class="btn alt" id="tcb">${TT("Back","Balik")}</button></div></div>`);
+      $("#tcs").onclick=store;$("#tcb").onclick=leave}
+    next()}
+  store()}
+window.tycoonGame=tycoonGame;window.nqTycoon={tyc,mkOrder,COST};
+
+const sg=window.showGames;
+if(sg)window.showGames=function(){const r=sg.apply(this,arguments);
+  try{const sh=document.querySelector("#bot .sheet"),p=sh&&sh.querySelector("p");
+    if(sh&&p&&!sh.querySelector("#tcbtn"))p.insertAdjacentHTML("afterend",`<button class="node" id="tcbtn" style="min-height:64px" onclick="tycoonGame(showGames)"><span class="icon-bubble">🏪</span><span><b>Tindahan Tycoon</b><br>${TT("Run your own store! Best day: ₱","Patakbuhin ang tindahan mo! Best na araw: ₱")}${tyc().best}</span></button>`)}catch(e){}
+  return r};
+}catch(e){console.warn("Tycoon failed to start",e)}})();
 </script>
 </body>
 </html>
